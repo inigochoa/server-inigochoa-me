@@ -11,6 +11,8 @@ permissions:
   pages: write
   id-token: write
 
+# Avoid overlapping deployments if the workflow is triggered again before
+# a previous run has finished.
 concurrency:
   group: pages
   cancel-in-progress: true
@@ -19,10 +21,15 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: Clone site source from Codeberg
+        run: |
+          git clone --depth 1 https://codeberg.org/inigochoa/server-inigochoa-me.git .
+
       - name: Set up Python runtime
         uses: actions/setup-python@v6
         with:
           python-version: "3.x"
+          cache: pip
 
       - name: Store the cache_id env variable
         run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV
@@ -35,12 +42,8 @@ jobs:
           restore-keys: |
             mkdocs-material-
 
-      - name: Clone site source from Codeberg
-        run: |
-          git clone --depth 1 https://codeberg.org/inigochoa/server-inigochoa-me.git .
-
       - name: Install required dependencies
-        run: pip install properdocs mkdocs-materialx mkdocs-document-dates mkdocs-minify-plugin cairosvg pillow
+        run: pip install -r requirements.txt
 
       - name: Build site
         run: properdocs build
