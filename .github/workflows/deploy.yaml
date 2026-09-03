@@ -1,0 +1,48 @@
+name: Build and Deploy
+
+# This repository does not host source code. It only builds the Astro site
+# whose source lives on Codeberg and publishes the result to GitHub Pages.
+# The build is triggered by hand from the Actions tab, never automatically.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+# Avoid overlapping deployments if the workflow is triggered again before
+# a previous run has finished.
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone site source from Codeberg
+        run: |
+          git clone --depth 1 https://codeberg.org/inigochoa/server-inigochoa-me.git site
+
+      - name: Set up Python runtime
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.x"
+
+      - name: Store the cache_id env variable
+        run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV
+
+      - name: Use cache
+        uses: actions/cache@v4
+        with:
+          key: mkdocs-material-${{ env.cache_id }}
+          path: ~/.cache
+          restore-keys: |
+            mkdocs-material-
+
+      - name: Install required dependencies
+        run: pip install mkdocs-materialx document-dates mkdocs-minify-plugin cairosvg pillow
+
+      - name: Deploy
+        run: mkdocs gh-deploy --force
