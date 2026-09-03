@@ -1,6 +1,6 @@
 name: Build and Deploy
 
-# This repository does not host source code. It only builds the Astro site
+# This repository does not host source code. It only builds the site
 # whose source lives on Codeberg and publishes the result to GitHub Pages.
 # The build is triggered by hand from the Actions tab, never automatically.
 on:
@@ -42,5 +42,21 @@ jobs:
       - name: Install required dependencies
         run: pip install properdocs mkdocs-materialx mkdocs-document-dates mkdocs-minify-plugin cairosvg pillow
 
-      - name: Deploy
-        run: properdocs gh-deploy --force
+      - name: Build site
+        run: properdocs build
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
