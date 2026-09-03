@@ -42,7 +42,7 @@ jobs:
             mkdocs-material-
 
       - name: Install required dependencies
-        run: pip install mkdocs-materialx document-dates mkdocs-minify-plugin cairosvg pillow
+        run: pip install properdocs mkdocs-materialx document-dates mkdocs-minify-plugin cairosvg pillow
 
       - name: Deploy
-        run: mkdocs gh-deploy --force
+        run: properdocs gh-deploy --force
