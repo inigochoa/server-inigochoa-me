@@ -11,8 +11,6 @@ permissions:
   pages: write
   id-token: write
 
-# Avoid overlapping deployments if the workflow is triggered again before
-# a previous run has finished.
 concurrency:
   group: pages
   cancel-in-progress: true
@@ -42,7 +40,7 @@ jobs:
           git clone --depth 1 https://codeberg.org/inigochoa/server-inigochoa-me.git .
 
       - name: Install required dependencies
-        run: pip install properdocs mkdocs-materialx document-dates mkdocs-minify-plugin cairosvg pillow
+        run: pip install properdocs mkdocs-materialx mkdocs-document-dates mkdocs-minify-plugin cairosvg pillow
 
       - name: Deploy
         run: properdocs gh-deploy --force
